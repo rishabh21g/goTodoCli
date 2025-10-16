@@ -3,7 +3,7 @@
 A simple terminal-based TODO CLI written in Go.
 
 ## Screenshot
-![TODO CLI Application](docs/todo-cli.png)
+![TODO CLI Application](./gotodo.png)
 
 ## Build and Run (Go)
 ```bash
