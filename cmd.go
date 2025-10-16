@@ -26,27 +26,37 @@ func NewCommand() *Command {
 
 	flag.Parse()
 	return &cf
-
 }
 
-func (c *Command) Execute(todos *Todos) error {
+func (c *Command) Execute(todos *Todos, storage *DB[Todos]) error {
+	var err error
 	switch {
 	case c.Add != "":
 		todos.add(c.Add)
+		// Save the updated todos after adding
+		err = storage.Save(*todos)
 	case c.Del != -1:
-		return todos.delete(c.Del)
+		err = todos.delete(c.Del)
+		if err == nil {
+			err = storage.Save(*todos) // Save after deletion
+		}
 	case c.Edit != -1:
 		if c.Set == "" {
-			return fmt.Errorf("missing -set\"new title\" for --edit")
+			return fmt.Errorf("missing -set \"new title\" for --edit")
 		}
-		return todos.edit(c.Edit, c.Set)
+		err = todos.edit(c.Edit, c.Set)
+		if err == nil {
+			err = storage.Save(*todos) // Save after editing
+		}
 	case c.Toggle != -1:
-		return todos.toggleComplete(c.Toggle)
+		err = todos.toggleComplete(c.Toggle)
+		if err == nil {
+			err = storage.Save(*todos) // Save after toggling
+		}
 	case c.List:
 		todos.listOfTodos()
 	default:
 		color.Blue("Invalid Commands")
 	}
-	return nil
-
+	return err
 }
