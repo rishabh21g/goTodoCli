@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-
 	"os"
 	"time"
 
@@ -98,6 +97,21 @@ func (todos *Todos) toggleComplete(index int) error {
 	}
 	foundTodo := &t[index]
 	foundTodo.IsComplete = !foundTodo.IsComplete
+	currentTime := time.Now()
+	foundTodo.UpdatedAt = &currentTime
+	return nil
+}
+
+// edit todo
+
+func (todos *Todos) edit(index int, newTitle string) error {
+	t := *todos
+	err := t.validateIndex(index)
+	if err != nil {
+		return err
+	}
+	foundTodo := &t[index]
+	foundTodo.Title = newTitle
 	currentTime := time.Now()
 	foundTodo.UpdatedAt = &currentTime
 	return nil
