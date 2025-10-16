@@ -3,7 +3,12 @@ package main
 import (
 	"errors"
 	"fmt"
+
+	"os"
 	"time"
+
+	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jedib0t/go-pretty/v6/text"
 )
 
 // Todo represents a single todo item with its details structured as a Go struct.
@@ -54,9 +59,34 @@ func (todos *Todos) delete(index int) error {
 // printing all the todos
 
 func (todos *Todos) listOfTodos() {
-	for _, todo := range *todos {
-		fmt.Printf("%+v\n", todo)
+	t := table.NewWriter()
+
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"ID", "Title", "Completed", "Created At", "Updated At"})
+	t.Style().Color.Header = text.Colors{text.FgYellow, text.Bold}
+	t.Style().Color.Row = text.Colors{text.FgGreen, text.Italic}
+
+	for index, todo := range *todos {
+		completed := "Not Yet"
+		if todo.IsComplete {
+			completed = "Done"
+		}
+
+		updatedAt := "N/A"
+		if todo.UpdatedAt != nil {
+			updatedAt = todo.UpdatedAt.Format("2006-01-02 02:04")
+		}
+
+		t.AppendRow(table.Row{
+			index,
+			todo.Title,
+			completed,
+			todo.CreatedAt.Format("2006-01-02 02:04"),
+			updatedAt,
+		})
 	}
+
+	t.Render()
 }
 
 // markComplete marks a todo item as complete based on its index.
